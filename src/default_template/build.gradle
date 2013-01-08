@@ -1,0 +1,1 @@
+apply from: '../gradle-templates/installation/apply-local.groovy'

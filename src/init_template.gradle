@@ -1,0 +1,23 @@
+projectsEvaluated {
+    rootProject.allprojects {
+        
+        // IDE Plugins
+        apply plugin: 'idea'
+        // apply plugin: 'eclipse'
+
+        if (!tasks.findByName('initSourceDirs')) {
+            task initSourceDirs(description : 'make all dirs for project setup') << { task ->
+                def language = System.properties["${task.name}.only"] ?: 'allSource'
+                sourceSets.all { 
+                    it["${language}"].srcDirs.each { it.mkdirs() }   
+                }   
+            }   
+        }   
+
+        if (!tasks.findByName('wrapper') && !parent) {
+            task wrapper(type: Wrapper) {
+                gradleVersion = '1.3'
+            }   
+        }   
+    }
+}
