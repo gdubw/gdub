@@ -1,4 +1,77 @@
-gdub
-====
+# What's gdub?
 
-A gradlew / gradle wrapper.
+gdub (`gw` on the command line) is a gradlew / gradle wrapper. This is not to be confused with the [Gradle
+Wrapper](http://www.gradle.org/). gdub actually uses the Gradle Wrapper on
+projects where one is configured, but falls back to use the system-installed
+Gradle if a wrapper is not availble.
+
+## The problems with gradle and gradlew
+
+gdub is a convienence for developers running local gradle commands and addresses
+a few minor shortcomings of gradle and gradlew's commandline behaviour:
+
+### You have to provide a relative path to `build.gradle`
+
+If you are using the `gradle` command, you have to provide gradle the path to
+the `build.gradle` file you want to run. If you happen to be in a directory
+other than the root of your project, this can be somewhat cumbersome:
+
+    ~/myProject/src/main/java/org/project/stuff$ gradle -b ../../../../../../build.gradle build
+
+With `gw`, this becomes:
+
+    ~/myProject/src/main/java/org/project/stuff$ gw build
+
+### You have to provide a relative path to `gradlew`
+
+If you are using `gradlew` and you want to run your build, you need to do
+something similiar and provide the relative path to the `gradlew` script:
+
+    ~/myProject/src/main/java/org/project/stuff$ ../../../../../../gradlew build
+
+Again, with `gw` this becomes:
+
+    ~/myProject/src/main/java/org/project/stuff$ gw build
+
+### You have a combination of the above problems
+
+I don't even want to type out an example of this, let alone do it on a
+day-to-day basis. Use your imagination.
+
+### Typing `./gradlew` to run the gradle wrapper is kind of inconvenient
+
+Even with tab completion and sitting at the root of your project, you have to
+type at least `./gr<tab>`. It gets a bit worse if you happen to have a
+`gradle.properties` file, and with the gradle wrapper, you have a `gradle`
+directory to contend with as well. A simple alias would solve this problem, but
+you still have the other (more annoying) issues to contend with.
+
+## The `gw` payoff
+
+Anywhere you happen to be on your project, you can run the gradle tasks of your
+project by typing `gw <tasks>`, regardless of whether you use the Gradle Wrapper
+in your project or not.
+
+`gw` works by looking upward from your current directory and will run the
+nearest `build.gradle` file with the nearest `gradlew`
+
+# Installing gdub from source
+
+You will probably want to install [Gradle](http://www.gradle.org) first. While
+this is not technically necessary if all your projects are using a Gradle
+Wrapper, it is a good idea to have Gradle available system-wide because some
+handy Gradle features are available outside the context of an existing project.
+
+Check out a copy of the gdub repository. Then, either add the gdub `bin`
+directory to your `$PATH`, or run the provided `install` command with the
+location to the prefix in which you want to install gdub.
+
+For example, to install gdub into `/usr/local`:
+
+    $ git clone https://github.com/ReadyTalk/gdub.git
+    $ cd gdub
+    $ ./install /usr/local
+
+Note that you may need to run `install` with `sudo` if you do not have
+permission to write to the installation prefix.
+
