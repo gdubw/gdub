@@ -1,0 +1,283 @@
+#!/usr/bin/env bash
+set -e
+set -E
+set -T
+
+BATS_COUNT_ONLY=""
+if [ "$1" = "-c" ]; then
+  BATS_COUNT_ONLY=1
+  shift
+fi
+
+BATS_EXTENDED_SYNTAX=""
+if [ "$1" = "-x" ]; then
+  BATS_EXTENDED_SYNTAX="$1"
+  shift
+fi
+
+BATS_TEST_FILENAME="$1"
+if [ -z "$BATS_TEST_FILENAME" ]; then
+  echo "usage: bats-exec <filename>" >&2
+  exit 1
+elif [ ! -f "$BATS_TEST_FILENAME" ]; then
+  echo "bats: $BATS_TEST_FILENAME does not exist" >&2
+  exit 1
+else
+  shift
+fi
+
+BATS_TEST_DIRNAME="$(dirname "$BATS_TEST_FILENAME")"
+BATS_TEST_NAMES=()
+
+load() {
+  local filename="$BATS_TEST_DIRNAME/$1.bash"
+  [ -f "$filename" ] || {
+    echo "bats: $filename does not exist" >&2
+    exit 1
+  }
+
+  source "$BATS_TEST_DIRNAME/$1.bash"
+}
+
+run() {
+  local e E T
+  [[ ! "$-" =~ e ]] || e=1
+  [[ ! "$-" =~ E ]] || E=1
+  [[ ! "$-" =~ T ]] || T=1
+  set +e
+  set +E
+  set +T
+  output="$("$@" 2>&1)"
+  status="$?"
+  IFS=$'\n' lines=($output)
+  [ -z "$e" ] || set -e
+  [ -z "$E" ] || set -E
+  [ -z "$T" ] || set -T
+}
+
+setup() {
+  true
+}
+
+teardown() {
+  true
+}
+
+skip() {
+  BATS_TEST_SKIPPED=${1:-1}
+  BATS_TEST_COMPLETED=1
+  exit 0
+}
+
+bats_test_begin() {
+  BATS_TEST_DESCRIPTION="$1"
+  if [ -n "$BATS_EXTENDED_SYNTAX" ]; then
+    echo "begin $BATS_TEST_NUMBER $BATS_TEST_DESCRIPTION" >&3
+  fi
+  setup
+}
+
+bats_test_function() {
+  local test_name="$1"
+  BATS_TEST_NAMES["${#BATS_TEST_NAMES[@]}"]="$test_name"
+}
+
+bats_capture_stack_trace() {
+  if [ "$BASH_SOURCE" != "$1" ]; then
+    BATS_STACK_TRACE=()
+    BATS_LINE_NUMBER="$BATS_LINE_NUMBER_"
+    BATS_LINE_NUMBER_="$2"
+
+    local test_pattern=" $BATS_TEST_NAME $BATS_TEST_SOURCE"
+    local setup_pattern=" setup $BATS_TEST_SOURCE"
+    local teardown_pattern=" teardown $BATS_TEST_SOURCE"
+
+    local index=0
+    local frame
+
+    while frame="$(caller "$index")"; do
+      BATS_STACK_TRACE[$index]="$frame"
+      if [[ "$frame" = *"$test_pattern"     || \
+            "$frame" = *"$setup_pattern"    || \
+            "$frame" = *"$teardown_pattern" ]]; then
+        break
+      else
+        let index+=1
+      fi
+    done
+  fi
+}
+
+bats_print_stack_trace() {
+  local index=1
+  local count="${#BATS_STACK_TRACE[@]}"
+  local line
+
+  for frame in "${BATS_STACK_TRACE[@]}"; do
+    if [ $index -eq 1 ]; then
+      line="$BATS_LINE_NUMBER"
+      echo -n "# ("
+    else
+      line="$(bats_frame_line "$frame")"
+      echo -n "#  "
+    fi
+
+    local fn="$(bats_frame_function "$frame")"
+    if [ "$fn" != "$BATS_TEST_NAME" ]; then
+      echo -n "from function \`$fn' "
+    fi
+
+    if [ $index -eq $count ]; then
+      echo "in test file $BATS_TEST_FILENAME, line $line)"
+    else
+      local filename="$(bats_frame_filename "$frame")"
+      echo "in file $filename, line $line,"
+    fi
+
+    let index+=1
+  done
+}
+
+bats_frame_line() {
+  local frame="$1"
+  local line="${frame%% *}"
+  echo "$line"
+}
+
+bats_frame_function() {
+  local frame="$1"
+  local rest="${frame#* }"
+  local fn="${rest%% *}"
+  echo "$fn"
+}
+
+bats_frame_filename() {
+  local frame="$1"
+  local rest="${frame#* }"
+  local filename="${rest#* }"
+
+  if [ "$filename" = "$BATS_TEST_SOURCE" ]; then
+    echo "$BATS_TEST_FILENAME"
+  else
+    echo "$filename"
+  fi
+}
+
+bats_error_trap() {
+  trap - debug
+}
+
+bats_teardown_trap() {
+  trap bats_exit_trap exit
+  if teardown >>"$BATS_OUT" 2>&1; then
+    BATS_TEARDOWN_COMPLETED=1
+  elif [ -n "$BATS_TEST_COMPLETED" ]; then
+    BATS_LINE_NUMBER="$BATS_LINE_NUMBER_"
+  fi
+  bats_exit_trap
+}
+
+bats_exit_trap() {
+  local status
+  local skipped
+  trap - err exit
+
+  skipped=""
+  if [ -n "$BATS_TEST_SKIPPED" ]; then
+    skipped=" # skip"
+    if [ "1" != "$BATS_TEST_SKIPPED" ]; then
+      skipped+=" ($BATS_TEST_SKIPPED)"
+    fi
+  fi
+
+  if [ -z "$BATS_TEST_COMPLETED" ] || [ -z "$BATS_TEARDOWN_COMPLETED" ]; then
+    echo "not ok $BATS_TEST_NUMBER $BATS_TEST_DESCRIPTION" >&3
+    bats_print_stack_trace >&3
+    sed -e "s/^/# /" < "$BATS_OUT" >&3
+    status=1
+  else
+    echo "ok ${BATS_TEST_NUMBER}${skipped} ${BATS_TEST_DESCRIPTION}" >&3
+    status=0
+  fi
+
+  rm -f "$BATS_OUT"
+  exit "$status"
+}
+
+bats_perform_tests() {
+  echo "1..$#"
+  test_number=1
+  status=0
+  for test_name in "$@"; do
+    "$0" $BATS_EXTENDED_SYNTAX "$BATS_TEST_FILENAME" "$test_name" "$test_number" || status=1
+    let test_number+=1
+  done
+  exit "$status"
+}
+
+bats_perform_test() {
+  BATS_TEST_NAME="$1"
+  if [ "$(type -t "$BATS_TEST_NAME" || true)" = "function" ]; then
+    BATS_TEST_NUMBER="$2"
+    if [ -z "$BATS_TEST_NUMBER" ]; then
+      echo "1..1"
+      BATS_TEST_NUMBER="1"
+    fi
+
+    BATS_TEST_COMPLETED=""
+    BATS_TEARDOWN_COMPLETED=""
+    trap "bats_capture_stack_trace \"\$BASH_SOURCE\" \$LINENO" debug
+    trap "bats_error_trap" err
+    trap "bats_teardown_trap" exit
+    "$BATS_TEST_NAME" >>"$BATS_OUT" 2>&1
+    BATS_TEST_COMPLETED=1
+
+  else
+    echo "bats: unknown test name \`$BATS_TEST_NAME'" >&2
+    exit 1
+  fi
+}
+
+if [ -z "$TMPDIR" ]; then
+  BATS_TMPDIR="/tmp"
+else
+  BATS_TMPDIR="${TMPDIR%/}"
+fi
+
+BATS_TMPNAME="$BATS_TMPDIR/bats.$$"
+BATS_PARENT_TMPNAME="$BATS_TMPDIR/bats.$PPID"
+BATS_OUT="${BATS_TMPNAME}.out"
+
+bats_preprocess_source() {
+  BATS_TEST_SOURCE="${BATS_TMPNAME}.src"
+  { tr -d '\r' < "$BATS_TEST_FILENAME"; echo; } | bats-preprocess > "$BATS_TEST_SOURCE"
+  trap bats_cleanup_preprocessed_source err exit
+  trap "bats_cleanup_preprocessed_source; exit 1" int
+}
+
+bats_cleanup_preprocessed_source() {
+  rm -f "$BATS_TEST_SOURCE"
+}
+
+bats_evaluate_preprocessed_source() {
+  if [ -z "$BATS_TEST_SOURCE" ]; then
+    BATS_TEST_SOURCE="${BATS_PARENT_TMPNAME}.src"
+  fi
+  source "$BATS_TEST_SOURCE"
+}
+
+exec 3<&1
+
+if [ "$#" -eq 0 ]; then
+  bats_preprocess_source
+  bats_evaluate_preprocessed_source
+
+  if [ -n "$BATS_COUNT_ONLY" ]; then
+    echo "${#BATS_TEST_NAMES[@]}"
+  else
+    bats_perform_tests "${BATS_TEST_NAMES[@]}"
+  fi
+else
+  bats_evaluate_preprocessed_source
+  bats_perform_test "$@"
+fi
