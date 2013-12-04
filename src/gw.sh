@@ -4,7 +4,6 @@
 GRADLEW='gradlew'
 GRADLE_BUILDFILE='build.gradle'
 DEFAULT_BUILDFILE="${HOME}/.gradle/default/${GRADLE_BUILDFILE}"
-GW_ARGS=${@}
 
 function echo_error() {
   echo "${@}" >&2
@@ -53,7 +52,7 @@ function execute_gradle() {
     # No gradle buildfile, so set up gw to run the default one.
     build_gradle=${DEFAULT_BUILDFILE}
     gradle=$(select_gradle $(dirname ${DEFAULT_BUILDFILE}))
-    GW_ARGS="-b ${build_gradle} ${GW_ARGS}"
+    BUILD_ARG="-b ${build_gradle}"
   else
     # We got a good build file, start there.
     working_dir=$(dirname ${build_gradle})
@@ -63,7 +62,7 @@ function execute_gradle() {
 
   # Say what we are gonna do, then do it.
   echo -e "Using gradle at '${gradle}' to run '${build_gradle}':\n"
-  "${gradle}" ${GW_ARGS}
+  "${gradle}" ${BUILD_ARG} "$@"
 }
 
-execute_gradle
+execute_gradle "$@"
