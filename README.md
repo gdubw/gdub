@@ -1,22 +1,33 @@
 # What's gdub?
 
-gdub (`gw` on the command line) is a gradlew / gradle wrapper. This is not to be confused with the [Gradle
-Wrapper](http://www.gradle.org/). gdub actually uses the Gradle Wrapper on
-projects where one is configured, but falls back to use the system-installed
-Gradle if a wrapper is not availble.
+gdub (`gw` on the command line) is a `gradle` / `gradlew` wrapper. This is 
+not to be confused with the [Gradle Wrapper](http://www.gradle.org/). gdub
+actually uses the Gradle Wrapper on projects where one is configured, but 
+falls back to use the system-installed Gradle if a wrapper is not availble.
 
-## The problems with gradle and gradlew
+## The problems with `gradle` and `gradlew`
 
 gdub is a convienence for developers running local gradle commands and addresses
-a few minor shortcomings of gradle and gradlew's commandline behaviour:
+a few minor shortcomings of `gradle` and `gradlew`'s commandline behaviour. These
+are known issues, and they are set to be addressed in future versions of Gradle. If
+you are interested in the discussions surrounding them, check out:
+
+  - [Issue GRADLE-2429](http://issues.gradle.org/browse/GRADLE-2429)
+  - [Spencer Allain's Gradle Forum Post](http://forums.gradle.org/gradle/topics/gradlew_scripts_in_gradle_bin_to_find_gradlew_scripts_upwards_within_project_space)
+  - [Phil Swenson's Gradle Forum Post](http://forums.gradle.org/gradle/topics/is_there_a_way_to_make_gradlew_available_within_all_sub_directories)
+
+Here are the issues I feel are most important, and the ones gdub attempts to
+address:
 
 ### You have to provide a relative path to `build.gradle`
 
-If you are using the `gradle` command, you have to provide gradle the path to
-the `build.gradle` file you want to run. If you happen to be in a directory
-other than the root of your project, this can be somewhat cumbersome:
+If you are using the `gradle` command, and you are not in the same directory
+as the `build.gradle` file you want to run, you have to provide `gradle` the path.
+Depending on where you happen to be, this can be somewhat cumbersome:
 
     ~/myProject/src/main/java/org/project/stuff$ gradle -b ../../../../../../build.gradle build
+    # Or maybe:
+    ~/myProject/src/main/java/org/project/stuff$ gradle -b ~/myProject/build.gradle build    
 
 With `gw`, this becomes:
 
