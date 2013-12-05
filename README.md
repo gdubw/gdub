@@ -46,14 +46,27 @@ type at least `./gr<tab>`. It gets a bit worse if you happen to have a
 directory to contend with as well. A simple alias would solve this problem, but
 you still have the other (more annoying) issues to contend with.
 
+### You meant to use the project's `gradlew`, but typed `gradle` instead
+
+This can be a problem if the project you are building has customizations to the
+gradle wrapper or for some reason is only compatible with a certain version of
+gradle that is configured in the wrapper. If you know the project uses gradle, 
+you may be tempted to just use your own system's gradle binary. This might be ok,
+or it might cause the build to break, but if a project has a `gradlew`, it is a 
+pretty safe bet you should use it, and not whatever Gradle distribution you 
+happen to have installed on your system.
+
 ## The `gw` payoff
 
 Anywhere you happen to be on your project, you can run the gradle tasks of your
 project by typing `gw <tasks>`, regardless of whether you use the Gradle Wrapper
 in your project or not.
 
-`gw` works by looking upward from your current directory and will run the
-nearest `build.gradle` file with the nearest `gradlew`
+`gw` works by looking upwards from your current directory and will run the
+nearest `build.gradle` file with the nearest `gradlew`. If a `gradlew` cannot
+be found, it will run the nearest `build.gradle` with your system's gradle. This
+is probably always what you want to do if you are running gradle from within a
+project's tree that uses the Gradle build system.
 
 # Installing gdub from source
 
