@@ -92,7 +92,7 @@ location to the prefix in which you want to install gdub.
 
 For example, to install gdub into `/usr/local`:
 
-    $ git clone https://github.com/ReadyTalk/gdub.git
+    $ git clone https://github.com/dougborg/gdub.git
     $ cd gdub
     $ ./install /usr/local
 
