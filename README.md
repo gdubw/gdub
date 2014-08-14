@@ -92,10 +92,21 @@ location to the prefix in which you want to install gdub.
 
 For example, to install gdub into `/usr/local`:
 
-    $ git clone https://github.com/ReadyTalk/gdub.git
+    $ git clone https://github.com/dougborg/gdub.git
     $ cd gdub
     $ ./install /usr/local
 
 Note that you may need to run `install` with `sudo` if you do not have
 permission to write to the installation prefix.
 
+## Aliasing the `gradle` command
+For maximum fidelity add a `gradle` alias to `gw` to your shell's configuration file.
+
+Example *bash*:
+
+```bash
+echo "alias gradle=gw" >> ~/.bashrc
+source ~/.bashrc
+```
+
+From now on you can just type `gradle ...` from wherever you are and `gw` takes care of the rest. Happiness ensues!
