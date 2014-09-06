@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
+set -e
 
-# DEFAULTS
-GRADLEW='gradlew'
-GRADLE_BUILDFILE='build.gradle'
+# DEFAULTS may be overridden by calling environment.
+GRADLE="${GRADLE-gradle}"
+GRADLEW="${GRADLEW-gradlew}"
+GRADLE_BUILDFILE="${GRADLE_BUILDFILE-build.gradle}"
 
 function err() {
   echo -e "${@}" >&2
@@ -11,7 +13,7 @@ function err() {
 function lookup() {
   local file=${1}
   local curr_path=${2}
-  [[ -z "${curr_path}" ]] && curr_path=${PWD}
+  [[ -z "${curr_path}" ]] && curr_path="${PWD}"
 
   # Search recursively upwards for file.
   until [[ "${curr_path}" == "/" ]]; do
@@ -26,32 +28,37 @@ function lookup() {
 
 function select_gradle() {
   local dir=${1}
-  local gradle=$(lookup ${GRADLEW} ${dir})
+
+  # Use project's gradlew if found.
+  local gradlew=$(lookup "${GRADLEW}" "${dir}")
+  if [[ -z "${gradlew}" ]]; then
+    err "No ${GRADLEW} set up for this project; consider setting one up:"
+    err "http://gradle.org/docs/current/userguide/gradle_wrapper.html\n"
+  else
+    echo "${gradlew}"
+    return 0
+  fi
 
   # Deal with a missing wrapper by defaulting to system gradle.
-  if [[ -z "${gradle}" ]]; then
-    gradle=$(which gradle)
-    err "There is no ${GRADLEW} set up for this project. You should consider setting one up."
-    err "See: http://gradle.org/docs/current/userguide/gradle_wrapper.html"
+  local gradle=$(which "${GRADLE}" 2>/dev/null)
+  if [[ -z ${gradle} ]]; then
+    err "'${GRADLE}' not installed or not available in your PATH:"
+    err "${PATH}"
+  else
+    echo "${gradle}"
+    return 0
   fi
 
-  # Check that we have an executable gradle, and error out if not.
-  if [[ -x ${gradle} ]];  then
-    echo ${gradle}
-  else
-    err "Unable to find an executable ${GRADLEW} or 'gradle' is not installed and available on your path."
-    exit 1
-  fi
+  return 1
 }
 
 function execute_gradle() {
-  local build_gradle=$(lookup ${GRADLE_BUILDFILE})
+  local build_gradle=$(lookup "${GRADLE_BUILDFILE}")
+  local gradle=$(select_gradle "${working_dir}")
 
   if [[ -n "${build_gradle}" ]]; then
-    # We got a good build file, start there.
-    working_dir=$(dirname ${build_gradle})
-    gradle=$(select_gradle ${working_dir})
-    cd ${working_dir}
+    # We got a good build file, start gradlew there.
+    cd "$(dirname "${build_gradle}")"
   else
     err "Unable to find a gradle build file named ${GRADLE_BUILDFILE}."
     exit 1
