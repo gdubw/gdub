@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -e
 
 # DEFAULTS may be overridden by calling environment.
 GRADLE="${GRADLE:-gradle}"
@@ -62,17 +61,21 @@ execute_gradle() {
     cd "$(dirname "${build_gradle}")"
   else
     err "Unable to find a gradle build file named ${GRADLE_BUILDFILE}."
-    exit 1
   fi
 
   # Say what we are gonna do, then do it.
-  err "Using gradle at '${gradle}' to run '${build_gradle}':\n"
-  "${gradle}" "${build_args[@]}"
+  err "Using gradle at '${gradle}' to run buildfile '${build_gradle}':\n"
+  if [[ -n "build_args[@]" ]]; then
+    "${gradle}" "${build_args[@]}"
+  else
+    "${gradle}"
+  fi
 }
 
 if [[ ${BASH_SOURCE[0]} != $0 ]]; then
   export -f execute_gradle select_gradle lookup err
 else
+  set -e
   execute_gradle "$@"
   exit $?
 fi
