@@ -1,0 +1,7 @@
+{
+  "name": "gdub",
+  "version": "0.1.0",
+  "description": "A gradlew / gradle wrapper. http://www.gdub.rocks",
+  "scripts": [ "gw" ],
+  "install": "./install"
+}
