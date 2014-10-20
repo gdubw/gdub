@@ -19,16 +19,23 @@ abs_dirname() {
   cd "$cwd"
 }
 
-PREFIX="$1"
-if [[ -z "$1" ]]; then
-  { echo "usage: $0 <prefix>"
-    echo "  e.g. $0 /usr/local"
-  } >&2
-  exit 1
-fi
+install() {
+  if [[ "$1" == "-h" ]]; then
+    cat >&2 <<USAGE
+Install gdub (gw).
+usage: $0 <prefix>
+  e.g. $0 /usr/local
+USAGE
+    exit 1
+  fi
 
-GW_ROOT="$(abs_dirname "$0")"
-mkdir -p "$PREFIX"/bin
-cp -R "$GW_ROOT"/bin/* "$PREFIX"/bin
+  local PREFIX="${1:-/usr/local}"
+  local GW_ROOT="$(abs_dirname "$0")"
 
-echo "Installed gdub (gw) to $PREFIX/bin/gw"
+  mkdir -p "${PREFIX}/bin"
+  cp -R "${GW_ROOT}/bin/gw" "${PREFIX}/bin"
+
+  echo "Installed gdub (gw) to $PREFIX/bin/gw."
+}
+
+install "$@"
