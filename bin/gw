@@ -1,18 +1,17 @@
 #!/usr/bin/env bash
-set -e
 
 # DEFAULTS may be overridden by calling environment.
-GRADLE="${GRADLE-gradle}"
-GRADLEW="${GRADLEW-gradlew}"
-GRADLE_BUILDFILE="${GRADLE_BUILDFILE-build.gradle}"
+GRADLE="${GRADLE:-gradle}"
+GRADLEW="${GRADLEW:-gradlew}"
+GRADLE_BUILDFILE="${GRADLE_BUILDFILE:-build.gradle}"
 
-function err() {
+err() {
   echo -e "${@}" >&2
 }
 
-function lookup() {
-  local file=${1}
-  local curr_path=${2}
+lookup() {
+  local file="${1}"
+  local curr_path="${2}"
   [[ -z "${curr_path}" ]] && curr_path="${PWD}"
 
   # Search recursively upwards for file.
@@ -26,8 +25,8 @@ function lookup() {
   done
 }
 
-function select_gradle() {
-  local dir=${1}
+select_gradle() {
+  local dir="${1}"
 
   # Use project's gradlew if found.
   local gradlew=$(lookup "${GRADLEW}" "${dir}")
@@ -52,21 +51,32 @@ function select_gradle() {
   return 1
 }
 
-function execute_gradle() {
+execute_gradle() {
   local build_gradle=$(lookup "${GRADLE_BUILDFILE}")
   local gradle=$(select_gradle "${working_dir}")
+  local build_args=( "${BUILD_ARG}" "$@" )
 
   if [[ -n "${build_gradle}" ]]; then
     # We got a good build file, start gradlew there.
     cd "$(dirname "${build_gradle}")"
   else
     err "Unable to find a gradle build file named ${GRADLE_BUILDFILE}."
-    exit 1
   fi
 
   # Say what we are gonna do, then do it.
-  err "Using gradle at '${gradle}' to run '${build_gradle}':\n"
-  "${gradle}" ${BUILD_ARG} "$@"
+  err "Using gradle at '${gradle}' to run buildfile '${build_gradle}':\n"
+  if [[ -n "build_args[@]" ]]; then
+    "${gradle}" "${build_args[@]}"
+  else
+    "${gradle}"
+  fi
 }
 
-execute_gradle "$@"
+# gw may be sourced from other scripts as a library to select / run gradle(w).
+if [[ ${BASH_SOURCE[0]} != $0 ]]; then
+  export -f execute_gradle select_gradle lookup err
+else
+  set -e
+  execute_gradle "$@"
+  exit $?
+fi
