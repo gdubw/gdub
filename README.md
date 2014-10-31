@@ -3,7 +3,7 @@ gdub (`gw` on the command line) is a `gradle` / `gradlew` wrapper. Not to be
 confused with the [Gradle][] [Wrapper][], `gw` uses the Gradle Wrapper on
 projects where one is configured, and falls back to use the `gradle` from the
 `$PATH` if a wrapper is not available. Also, `gw` is 66% shorter to type than `gradle`
-and 78% shorter to type than ``./gradlew`.
+and 78% shorter to type than `./gradlew`.
 
 [Gradle]:  http://www.gradle.org
 [Wrapper]: http://www.gradle.org/docs/current/userguide/gradle_wrapper.html
@@ -14,7 +14,7 @@ and 78% shorter to type than ``./gradlew`.
 If you use [bpkg][], you may install like so:
 
 ```bash
-bpkg install gdub -g
+bpkg install dougborg/gdub -g
 ```
 
 [bpkg]: http://bpkg.io
