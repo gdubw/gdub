@@ -54,7 +54,7 @@ select_gradle() {
 execute_gradle() {
   local build_gradle=$(lookup "${GRADLE_BUILDFILE}")
   local gradle=$(select_gradle "${working_dir}")
-  local build_args=( "${BUILD_ARG}" "$@" )
+  local build_args=( ${BUILD_ARG} "$@" )
 
   if [[ -n "${build_gradle}" ]]; then
     # We got a good build file, start gradlew there.
