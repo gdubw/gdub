@@ -105,7 +105,6 @@ Again, with `gw` this becomes:
 ```bash
 $ gw build
 ```
-[test][]
 
 ### You have a combination of the above problems
 I don't even want to type out an example of this, let alone do it on a
