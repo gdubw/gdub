@@ -1,6 +1,6 @@
 # What's gdub?
 gdub (`gw` on the command line) is a `gradle` / `gradlew` wrapper. Not to be
-confused with the [Gradle][] [Wrapper][], `gw` uses the Gradle Wrapper on
+confused with the [Gradle][] [Wrapper][], `gw` invokes `./gradlew` on
 projects where one is configured, and falls back to use the `gradle` from the
 `$PATH` if a wrapper is not available. Also, `gw` is 66% shorter to type than `gradle`
 and 78% shorter to type than `./gradlew`.
@@ -9,8 +9,22 @@ and 78% shorter to type than `./gradlew`.
 [Wrapper]: http://www.gradle.org/docs/current/userguide/gradle_wrapper.html
 
 # Installation
+There are now a few ways to install gdub, with more on the way. Use whichever is
+most convenient for you or feel free to [suggest another][]!
 
-## Installation with `bpkg`
+[suggest another]: https://github.com/dougborg/gdub/issues
+
+## Homebrew
+If you are on OSX and not using [homebrew][], I'm not quite sure what to do with
+you. Install gdub with homebrew like so:
+
+```bash
+brew install gdub
+```
+
+[homebrew]: http://brew.sh
+
+## bpkg
 If you use [bpkg][], you may install like so:
 
 ```bash
@@ -66,7 +80,7 @@ a few minor shortcomings of `gradle` and `gradlew`'s commandline behaviour.
 These are known issues, and they are set to be addressed in future versions of
 Gradle. If you are interested in the discussions surrounding them, check out:
 
-  - [Issue Gradle-2429](http://issues.Gradle.org/browse/Gradle-2429)
+  - [Issue Gradle-2429](http://issues.gradle.org/browse/Gradle-2429)
   - [Spencer Allain's Gradle Forum Post](http://gsfn.us/t/33g0l)
   - [Phil Swenson's Gradle Forum Post](http://gsfn.us/t/39h67)
 
