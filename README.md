@@ -22,7 +22,7 @@ you. Install gdub with homebrew like so:
 brew install gdub
 ```
 
-[homebrew]: http://brew.sh
+[homebrew]: https://brew.sh
 
 ## bpkg
 If you use [bpkg][], you may install like so:
@@ -31,7 +31,7 @@ If you use [bpkg][], you may install like so:
 bpkg install dougborg/gdub -g
 ```
 
-[bpkg]: http://bpkg.io
+[bpkg]: http://www.bpkg.io
 
 ## Installing gdub from source
 You will probably want to [install Gradle][] first. While this is not
@@ -40,7 +40,7 @@ good idea to have the latest version of `gradle` available system-wide because
 some handy Gradle features are available outside the context of an existing
 project.
 
-[install Gradle]: http://www.gradle.org/installation
+[install Gradle]: https://gradle.org/install/
 
 Check out a copy of the gdub repository. Then, either add the gdub `bin`
 directory to your `$PATH`, or run the provided `install` command with the
