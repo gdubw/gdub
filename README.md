@@ -24,6 +24,13 @@ brew install gdub
 
 [homebrew]: http://brew.sh
 
+## MacPorts
+If you use [MacPorts](https://www.macports.org), you can install gdub like so:
+
+```bash
+sudo port install gdub
+```
+
 ## bpkg
 If you use [bpkg][], you may install like so:
 
