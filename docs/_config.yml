@@ -1,0 +1,8 @@
+title: gdub
+description: A gradlew / gradle wrapper.
+google_analytics: UA-35143181-2
+show_downloads: true
+theme: jekyll-theme-slate
+
+gems:
+  - jekyll-mentions
