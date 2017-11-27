@@ -56,10 +56,7 @@ execute_gradle() {
   local gradle=$(select_gradle "${working_dir}")
   local build_args=( ${BUILD_ARG} "$@" )
 
-  if [[ -n "${build_gradle}" ]]; then
-    # We got a good build file, start gradlew there.
-    cd "$(dirname "${build_gradle}")"
-  else
+  if [[ -z "${build_gradle}" ]]; then
     err "Unable to find a gradle build file named ${GRADLE_BUILDFILE}."
   fi
 
