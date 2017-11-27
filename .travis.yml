@@ -1,0 +1,10 @@
+dist: trusty
+language: java
+install: true
+script:
+  # test once without and with wrapper present
+  - gradle noWrapper
+  - gradle clean test
+  - gradle wrapper
+  - gradle clean test
+

@@ -1,0 +1,22 @@
+plugins {
+	id 'java'
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '4.3.1'
+}
+
+task noWrapper() {
+	doLast {
+		delete 'gradle'
+		delete 'gradlew'
+		delete 'gradlew.bat'
+	}
+}
+
+task testProjectWithSubproject(type: Exec) {
+	workingDir 'test/project-with-subproject'
+	commandLine './test.sh'
+}
+
+test.dependsOn 'testProjectWithSubproject'
