@@ -1,0 +1,13 @@
+task speak {
+	doLast {
+		println 'rootProjectSpeak'
+	}
+}
+
+configure(subprojects.findAll {it.name == 'subproject'}) {
+    task speak {
+        doLast {
+            println 'subprojectSpeak'
+        }
+    }
+}
