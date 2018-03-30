@@ -4,6 +4,7 @@
 GRADLE="${GRADLE:-gradle}"
 GRADLEW="${GRADLEW:-gradlew}"
 GRADLE_BUILDFILE="${GRADLE_BUILDFILE:-build.gradle}"
+GRADLE_KTS_BUILDFILE="${GRADLE_KTS_BUILDFILE:-build.gradle.kts}"
 
 err() {
   echo -e "${@}" >&2
@@ -53,14 +54,21 @@ select_gradle() {
 
 execute_gradle() {
   local build_gradle=$(lookup "${GRADLE_BUILDFILE}")
+  local build_gradle_kts=$(lookup "${GRADLE_KTS_BUILDFILE}")
   local gradle=$(select_gradle "${working_dir}")
   local build_args=( ${BUILD_ARG} "$@" )
 
-  if [[ -n "${build_gradle}" ]]; then
+  if [ -n "${build_gradle}" ] || [ -n "${build_gradle_kts}" ]; then
+    local ktsDirName="$(dirname "${build_gradle_kts}")"
+    local dirName="$(dirname "${build_gradle}")"
+    if (( ${#ktsDirName} > ${#dirName} ))
+    then
+        build_gradle=${build_gradle_kts}
+    fi
     # We got a good build file, start gradlew there.
     cd "$(dirname "${build_gradle}")"
   else
-    err "Unable to find a gradle build file named ${GRADLE_BUILDFILE}."
+    err "Unable to find a gradle build file named ${GRADLE_BUILDFILE} or ${GRADLE_KTS_BUILDFILE}."
   fi
 
   # Say what we are gonna do, then do it.
