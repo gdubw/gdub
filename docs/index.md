@@ -38,7 +38,7 @@ If you use [bpkg][], you may install like so:
 bpkg install dougborg/gdub -g
 ```
 
-[bpkg]: http://www.bpkg.io
+[bpkg]: https://www.bpkg.sh
 
 ## Installing gdub from source
 You will probably want to [install Gradle][] first. While this is not
