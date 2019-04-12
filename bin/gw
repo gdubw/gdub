@@ -17,8 +17,12 @@ lookup() {
 
   # Search recursively upwards for file.
   until [[ "${curr_path}" == "/" ]]; do
+    local curr_base=$(basename "${curr_path}")
     if [[ -e "${curr_path}/${file}" ]]; then
       echo "${curr_path}/${file}"
+      break
+    elif [[ "${file}" == "${GRADLE_BUILDFILE}" && -e "${curr_path}/${curr_base}.gradle" ]]; then
+      echo "${curr_path}/${curr_base}.gradle"
       break
     else
       curr_path=$(dirname "${curr_path}")
