@@ -1,0 +1,1 @@
+A Gradle Wrapper 1.0 Distribution. Used internally by GNG. Gradle 1.0 package size only has 28.56M.
