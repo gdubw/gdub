@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # DEFAULTS may be overridden by calling environment.
-readonly GRADLE="${GRADLE:-gradle}"
-readonly GRADLEW="${GRADLEW:-gradlew}"
-readonly GRADLE_BUILDFILE="${GRADLE_BUILDFILE:-build.gradle}"
-readonly GRADLE_KTS_BUILDFILE="${GRADLE_KTS_BUILDFILE:-build.gradle.kts}"
-readonly GLOBAL_GRADLE="${GLOBAL_GRADLE:-0}"
+GRADLE="${GRADLE:-gradle}"
+GRADLEW="${GRADLEW:-gradlew}"
+GRADLE_BUILDFILE="${GRADLE_BUILDFILE:-build.gradle}"
+GRADLE_KTS_BUILDFILE="${GRADLE_KTS_BUILDFILE:-build.gradle.kts}"
+GLOBAL_GRADLE="${GLOBAL_GRADLE:-0}"
 
 function gw::select_gradle() {
     local dir="${1}"
