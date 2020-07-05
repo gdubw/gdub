@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+set -e
+set -o pipefail
+SELF_SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
 # DEFAULTS may be overridden by calling environment.
 GRADLE="${GRADLE:-gradle}"
@@ -56,14 +59,13 @@ execute_gradle() {
   local build_gradle=$(lookup "${GRADLE_BUILDFILE}")
   local build_gradle_kts=$(lookup "${GRADLE_KTS_BUILDFILE}")
   local gradle=$(select_gradle "${working_dir}")
-  local build_args=( ${BUILD_ARG} "$@" )
+  local build_args=(${BUILD_ARG} "$@")
 
   if [ -n "${build_gradle}" ] || [ -n "${build_gradle_kts}" ]; then
     local ktsDirName="$(dirname "${build_gradle_kts}")"
     local dirName="$(dirname "${build_gradle}")"
-    if (( ${#ktsDirName} > ${#dirName} ))
-    then
-        build_gradle=${build_gradle_kts}
+    if ((${#ktsDirName} > ${#dirName})); then
+      build_gradle=${build_gradle_kts}
     fi
     # We got a good build file, start gradlew there.
     cd "$(dirname "${build_gradle}")"
@@ -80,6 +82,18 @@ execute_gradle() {
   fi
 }
 
+if [[ "gng" = $(basename $0) ]]; then
+  echo "gng is executed."
+  __GRADLE_HOME__=$(mktemp -d)
+  trap 'rm -rf ${__GRADLE_HOME__}' EXIT
+  #Embedded Gradle Wrapper
+  set -e
+  function __gradlew__() {
+    java -classpath /opt/gng/gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain \
+      -q --no-daemon -g "${__GRADLE_HOME__}" -I "/opt/gng/gradle/init.gradle" "$@"
+  }
+  exit $?
+fi
 # gw may be sourced from other scripts as a library to select / run gradle(w).
 if [[ ${BASH_SOURCE[0]} != $0 ]]; then
   export -f execute_gradle select_gradle lookup err

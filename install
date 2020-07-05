@@ -33,9 +33,9 @@ USAGE
   local GW_ROOT="$(abs_dirname "$0")"
 
   mkdir -p "${PREFIX}/bin"
-  cp -R "${GW_ROOT}/bin/gw" "${PREFIX}/bin"
+  cp -R "${GW_ROOT}/bin/*" "${PREFIX}/bin"
 
-  echo "Installed gdub (gw) to $PREFIX/bin/gw."
+  echo "Installed gdub (gw) to $PREFIX/bin/"
 }
 
 install "$@"
