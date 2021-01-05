@@ -1,4 +1,4 @@
-# This project is obsolete. Please use 'gng' instead. [gng](https://github.com/gdubw/gng)
+# This project is obsolete. Please use 'gng' instead. Visit at [gng](https://github.com/gdubw/gng)
 
 # What's gdub?
 gdub (`gw` on the command line) is a `gradle` / `gradlew` wrapper. Not to be
