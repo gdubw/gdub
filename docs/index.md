@@ -81,6 +81,47 @@ source ~/.bashrc
 From now on you can just type `gradle ...` from wherever you are and `gw` takes
 care of the rest. Happiness ensues!
 
+
+## What about Windows?
+
+The main gdub is a bash script which is great but Windows support for bash is still flaky.
+PowerShell is a better option.
+
+### Install a PowerShell Profile
+
+```powershell
+Test-Path $PROFILE
+```
+There are actually six profiles but here we will use the most local.
+
+If you do not have a profile you will need to create one.
+```powershell
+Set-ExecutionPolicy RemoteSigned
+New-Item -Path $PROFILE -Type File -Force
+notepad  $PROFILE
+```
+
+The following profile will get you started.
+```powershell
+$ProfileRoot = (Split-Path -Parent $MyInvocation.MyCommand.Path)
+
+$ProfileScripts = "$ProfileRoot\Scripts"
+$env:path += ";$ProfileScripts"
+
+$ProfileModules = "$ProfileRoot\Modules"
+
+$ProfileDocs = $(Resolve-Path "$Env:userprofile\Documents")
+$ProfileDesk = $(Resolve-Path "$Env:userprofile\Desktop")
+
+Import-Module GradleWrapper 
+```
+
+Copy gdub into the module directory then reload/restart PowerShell.
+```powershell
+.\install.ps1
+```
+
+
 # Why gdub?
 
 ## The problems with `gradle` and `gradlew`
